@@ -1,15 +1,27 @@
 package com.example.geek.flicker;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
+import android.widget.LinearLayout;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import  com.example.geek.flicker.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,9 +29,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private FlickerAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private String []  myDataset;
+    private List<PhotoData> photoData ;
+    private DividerItemDecoration dividerItemDecoration;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,13 +48,55 @@ public class MainActivity extends AppCompatActivity {
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
 
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL);
 
-        // specify an adapter (see also next example)
-        mAdapter = new FlickerAdapter(myDataset);
+        staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(staggeredGridLayoutManager);
+//        photoData= new ArrayList<>();
+//        for (int i = 0; i < 10; i++) {
+//            photoData.add(new PhotoData("Andorid Title","","","","","",R.drawable.place_holder_icon));
+//
+//        }
+       // dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(), LinearLayout.HORIZONTAL);
+
+        // Animation added.i
+
+
+       // LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getApplicationContext(),R.anim.layout_animation_fall_down );
+        //mRecyclerView.setLayoutAnimation(animation);
+
+
+     //   mRecyclerView.addItemDecoration(dividerItemDecoration);
+        mAdapter = new FlickerAdapter(this,photoData);
         mRecyclerView.setAdapter(mAdapter);
 
+        String FLICKR_API_KEY="90d4261f0b2d121c44e13aa5e3e80947";
+        String FLICKR_SECRET_KEY="31c8a94a5c0c757b";
+
+
+
+        FetchImageJsonData fetchImageJsonData = new FetchImageJsonData(mAdapter);
+
+        fetchImageJsonData.execute("https://api.flickr.com/services/feeds/photos_public.gne?format=json&nojsoncallback=1&tagmode=any");
+
+
+
+
+
+    }
+
+
+
+    private void runLayoutAnimation(final RecyclerView recyclerView) {
+        final Context context = recyclerView.getContext();
+        final LayoutAnimationController controller =
+                AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_fall_down);
+
+        recyclerView.setLayoutAnimation(controller);
+        recyclerView.getAdapter().notifyDataSetChanged();
+        recyclerView.scheduleLayoutAnimation();
     }
 
     @Override
