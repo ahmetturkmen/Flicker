@@ -1,9 +1,11 @@
 package com.example.geek.flicker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
@@ -11,19 +13,21 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import  com.example.geek.flicker.R;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener,ListItemOnClickListener{
 
 
 
@@ -31,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private FlickerAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private List<PhotoData> photoData ;
     private DividerItemDecoration dividerItemDecoration;
+    private List<PhotoData> photoDataList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,22 +58,8 @@ public class MainActivity extends AppCompatActivity {
 
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(staggeredGridLayoutManager);
-//        photoData= new ArrayList<>();
-//        for (int i = 0; i < 10; i++) {
-//            photoData.add(new PhotoData("Andorid Title","","","","","",R.drawable.place_holder_icon));
-//
-//        }
-       // dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(), LinearLayout.HORIZONTAL);
-
-        // Animation added.i
-
-
-       // LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getApplicationContext(),R.anim.layout_animation_fall_down );
-        //mRecyclerView.setLayoutAnimation(animation);
-
-
-     //   mRecyclerView.addItemDecoration(dividerItemDecoration);
-        mAdapter = new FlickerAdapter(this,photoData);
+        mAdapter = new FlickerAdapter(this,photoDataList,this);
+        runLayoutAnimation(mRecyclerView);
         mRecyclerView.setAdapter(mAdapter);
 
         String FLICKR_API_KEY="90d4261f0b2d121c44e13aa5e3e80947";
@@ -82,9 +72,6 @@ public class MainActivity extends AppCompatActivity {
         fetchImageJsonData.execute("https://api.flickr.com/services/feeds/photos_public.gne?format=json&nojsoncallback=1&tagmode=any");
 
 
-
-
-
     }
 
 
@@ -95,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_fall_down);
 
         recyclerView.setLayoutAnimation(controller);
-        recyclerView.getAdapter().notifyDataSetChanged();
+       // recyclerView.getAdapter().notifyDataSetChanged();
         recyclerView.scheduleLayoutAnimation();
     }
 
@@ -103,6 +90,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem menuItem = menu.findItem(R.id.app_bar_search);
+        SearchView searchView=(SearchView) MenuItemCompat.getActionView(menuItem);
+        searchView.setOnQueryTextListener(this);
         return true;
     }
 
@@ -119,5 +109,38 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        FetchImageJsonData fetchImageJsonData = new FetchImageJsonData(mAdapter);
+
+        fetchImageJsonData.execute("https://api.flickr.com/services/feeds/photos_public.gne?format=json&nojsoncallback=1&tag="+query);
+
+        mAdapter.notifyDataSetChanged();
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+
+        return false;
+    }
+
+    @Override
+    public void onListItemClick(int clickedItemIndex) {
+
+        Intent detailActivity ;
+
+        detailActivity = new Intent(MainActivity.this,PhotoDetailActivity.class);
+        Log.v("photodata content",mAdapter.getPhoto(clickedItemIndex).getAuthor()+" ");
+        detailActivity.putExtra("title",mAdapter.getPhoto(clickedItemIndex).getTitle());
+        detailActivity.putExtra("tags",mAdapter.getPhoto(clickedItemIndex).getTags());
+        detailActivity.putExtra("link",mAdapter.getPhoto(clickedItemIndex).getLink());
+        detailActivity.putExtra("authorID",mAdapter.getPhoto(clickedItemIndex).getAuthorId());
+        detailActivity.putExtra("photoLink",mAdapter.getPhoto(clickedItemIndex).getLink());
+        Log.v("onListItemClick","MainActivity Item " +clickedItemIndex+" is clicked");
+
+        startActivity(detailActivity);
     }
 }

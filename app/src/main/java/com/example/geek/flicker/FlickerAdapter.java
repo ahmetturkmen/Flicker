@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,10 +24,13 @@ public class FlickerAdapter extends RecyclerView.Adapter<FlickerAdapter.ViewHold
     private List<PhotoData> mPhotosList;
     private Context mContext;
     private String[] mDataset;
+    private ListItemOnClickListener mOnClickListener;
 
-    public FlickerAdapter(Context context,List<PhotoData> photoDataList) {
+
+    public FlickerAdapter(Context context,List<PhotoData> photoDataList,ListItemOnClickListener mOnClickListener) {
         mPhotosList=photoDataList;
         mContext=context;
+        this.mOnClickListener=mOnClickListener;
     }
 
     // Create new views (invoked by the layout manager)
@@ -35,7 +39,7 @@ public class FlickerAdapter extends RecyclerView.Adapter<FlickerAdapter.ViewHold
     public FlickerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View view = layoutInflater.inflate(R.layout.list_cardview_layout,parent,false);
-        FlickerAdapter.ViewHolder viewHolder = new FlickerAdapter.ViewHolder(view);
+        FlickerAdapter.ViewHolder viewHolder = new FlickerAdapter.ViewHolder(view,mOnClickListener);
         return viewHolder;
     }
 
@@ -75,20 +79,29 @@ public class FlickerAdapter extends RecyclerView.Adapter<FlickerAdapter.ViewHold
 
 
 
-    class ViewHolder extends  RecyclerView.ViewHolder{
+
+    class ViewHolder extends  RecyclerView.ViewHolder implements View.OnClickListener{
 
         ImageView thumbnail;
+        private  ListItemOnClickListener mListener;
+
         TextView  photoTitle;
 
         // each data item is just a string in this case
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(View itemView,ListItemOnClickListener mListener) {
             super(itemView);
             this.thumbnail=(ImageView)itemView.findViewById(R.id.thumbnail);
+            this.mListener=mListener;
 //            this.photoTitle=(TextView)itemView.findViewById(R.id.photoTitle);
-
+            itemView.setOnClickListener(this);
         }
 
+        @Override
+        public void onClick(View v) {
+            int clickedPosition = getAdapterPosition();
+            mListener.onListItemClick(clickedPosition);
+        }
     }
 }
 
