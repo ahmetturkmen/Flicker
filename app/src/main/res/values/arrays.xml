@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="optionsToSearch">
+            <item>Photos</item>
+            <item>Groups</item>
+            <item>People</item>
+    </string-array>
+
+    <string-array name="pref_seach_values">
+        <item>photos</item>
+        <item>groups</item>
+        <item>people</item>
+    </string-array>
+</resources>

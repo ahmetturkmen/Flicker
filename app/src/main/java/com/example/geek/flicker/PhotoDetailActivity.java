@@ -3,6 +3,7 @@ package com.example.geek.flicker;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,6 +25,19 @@ public class PhotoDetailActivity extends AppCompatActivity {
         photoTags=findViewById(R.id.photo_tags);
         photoTitle=findViewById(R.id.photo_title);
         photoImageView=findViewById(R.id.photo_image);
+
+        photoAuthor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+
+
+
+                startActivity(new Intent(PhotoDetailActivity.this,UserDetailActivity.class));
+            }
+        });
+
 
         Intent receievedIntent = getIntent();
 

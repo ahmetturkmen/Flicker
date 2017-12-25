@@ -2,7 +2,9 @@ package com.example.geek.flicker;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
@@ -105,7 +107,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
@@ -114,10 +117,13 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     public boolean onQueryTextSubmit(String query) {
         FetchImageJsonData fetchImageJsonData = new FetchImageJsonData(mAdapter);
-
-        fetchImageJsonData.execute("https://api.flickr.com/services/feeds/photos_public.gne?format=json&nojsoncallback=1&tag="+query);
-
+        SharedPreferences prefs       = PreferenceManager.getDefaultSharedPreferences(this);
+        String searchOption= prefs.getString("searchOption","Photos");
+        Log.v("SearchOptions" , "SearchOption is "+searchOption);
+        if(searchOption.equals("people")){
+        fetchImageJsonData.execute("https://api.flickr.com/services/feeds/photos_public.gne?format=json&nojsoncallback=1&id="+""+ query+"");
         mAdapter.notifyDataSetChanged();
+        }
         return true;
     }
 
@@ -139,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         detailActivity.putExtra("link",mAdapter.getPhoto(clickedItemIndex).getLink());
         detailActivity.putExtra("authorID",mAdapter.getPhoto(clickedItemIndex).getAuthorId());
         detailActivity.putExtra("photoLink",mAdapter.getPhoto(clickedItemIndex).getLink());
+
         Log.v("onListItemClick","MainActivity Item " +clickedItemIndex+" is clicked");
 
         startActivity(detailActivity);

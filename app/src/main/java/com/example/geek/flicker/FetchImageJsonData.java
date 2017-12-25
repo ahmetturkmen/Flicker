@@ -23,29 +23,29 @@ import static android.content.ContentValues.TAG;
  * Created by geek on 22.12.2017.
  */
 
-public class FetchImageJsonData extends AsyncTask<String, Void,List<PhotoData>>{
+public class FetchImageJsonData extends AsyncTask<String, Void, List<PhotoData>> {
 
     FlickerAdapter flickerAdapter;
     private List<PhotoData> mPhotoList = null;
 
-    public FetchImageJsonData(FlickerAdapter flickerAdapter){
-        this.flickerAdapter=flickerAdapter;
+    public FetchImageJsonData(FlickerAdapter flickerAdapter) {
+        this.flickerAdapter = flickerAdapter;
     }
 
     @Override
-    protected List<PhotoData>  doInBackground(String... strings) {
-        HttpURLConnection urlConnection   = null;
-        BufferedReader reader          = null;
-        String 		      imageJsonString = null;
+    protected List<PhotoData> doInBackground(String... strings) {
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+        String imageJsonString = null;
 
         try {
-            URL weatherURL = new URL(strings[0]);
-            urlConnection  = (HttpURLConnection) weatherURL.openConnection();
+            URL url = new URL(strings[0]);
+            urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
             InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer     = new StringBuffer();
+            StringBuffer buffer = new StringBuffer();
 
             if (inputStream != null) {
                 reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -60,7 +60,7 @@ public class FetchImageJsonData extends AsyncTask<String, Void,List<PhotoData>>{
             }
         } catch (IOException e) {
             Log.e("MainActivity", "Error ", e);
-        } finally{
+        } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }
@@ -75,9 +75,9 @@ public class FetchImageJsonData extends AsyncTask<String, Void,List<PhotoData>>{
 
 
         try {
-            return getImageDataFromJson(imageJsonString);
+            return getDataFromJson(imageJsonString);
         } catch (JSONException e) {
-            Log.e("FetchWeatherTask", e.getMessage(), e);
+            Log.e("FetchImageTask", e.getMessage(), e);
         }
 
         // This will only happen if there was an error getting or parsing the forecast.
@@ -85,53 +85,85 @@ public class FetchImageJsonData extends AsyncTask<String, Void,List<PhotoData>>{
 
     }
 
-    private List<PhotoData> getImageDataFromJson(String imageJsonString) throws JSONException {
+    private List<PhotoData>getDataFromJson(String imageJsonString) throws JSONException{
+        mPhotoList = new ArrayList<>();
+//
+            JSONObject jsonData = new JSONObject(imageJsonString);
+            JSONArray itemsArray = jsonData.getJSONArray("items");
 
-        mPhotoList=new ArrayList<>();
+            for (int i = 0; i < itemsArray.length(); i++) {
+                JSONObject jsonPhoto = itemsArray.getJSONObject(i);
+                String title = jsonPhoto.getString("title");
+                String author = jsonPhoto.getString("author");
+                String authorId = jsonPhoto.getString("author_id");
+                String tags = jsonPhoto.getString("tags");
 
-        JSONObject jsonData = new JSONObject(imageJsonString);
-        JSONArray itemsArray = jsonData.getJSONArray("items");
+                JSONObject jsonMedia = jsonPhoto.getJSONObject("media");
+                String photoUrl = jsonMedia.getString("m");
 
-        for (int i = 0; i < itemsArray.length(); i++) {
-            JSONObject jsonPhoto = itemsArray.getJSONObject(i);
-            String title = jsonPhoto.getString("title");
-            String author = jsonPhoto.getString("author");
-            String authorId = jsonPhoto.getString("author_id");
-            String tags = jsonPhoto.getString("tags");
+                String link = photoUrl.replaceFirst("_m.", "_b.");
+                PhotoData photoObject = new PhotoData(title, author, authorId, link, tags, photoUrl);
 
-            JSONObject jsonMedia = jsonPhoto.getJSONObject("media");
-            String photoUrl = jsonMedia.getString("m");
+                mPhotoList.add(photoObject);
+                Log.d(TAG, "onDownloadComplete " + photoObject.toString());
 
-            String link = photoUrl.replaceFirst("_m.", "_b.");
-
-            PhotoData photoObject = new PhotoData(title, author, authorId, link, tags, photoUrl);
-            mPhotoList.add(photoObject);
-
-            Log.d(TAG, "onDownloadComplete " + photoObject.toString());
-
-
-        }
-
-        return  mPhotoList;
+            }
+            return mPhotoList;
     }
 
-//    private String createUri(String searchCriteria, String lang, boolean matchAll) {
-//        Log.d(TAG, "createUri starts");
+
+//    private List<PhotoData> getDataFromJson(String imageJsonStringWithFLAG) throws JSONException {
 //
-//        String URI = Uri.parse(mBaseURL).buildUpon()
-//                .appendQueryParameter("tags", searchCriteria)
-//                .appendQueryParameter("tagmode", matchAll ? "ALL" : "ANY")
-//                .appendQueryParameter("lang", lang)
-//                .appendQueryParameter("format", "json")
-//                .appendQueryParameter("nojsoncallback", "1")
-//                .build().toString();
-//        Log.v("URI: ",""+URI);
-//        return URI;
+//        String [] imageJsonString=imageJsonStringWithFLAG.split("FLAG");
+//
+//        if(imageJsonString[1].equals("USER")){
+//            mPhotoList =new ArrayList<>();
+//
+//            JSONObject jsonData = new JSONObject(imageJsonString[0]);
+//            JSONObject persopnInfo = jsonData.getJSONObject("person");
+//            String idOfPerson = persopnInfo.getString("id");
+//            String personUserName = persopnInfo.getJSONObject("username").getString("_content");
+//            String personRealName = persopnInfo.getJSONObject("realnmae").getString("_content").toString();
+//            int numberOfPhotos = Integer.parseInt(persopnInfo.getJSONObject("photos").getJSONObject("count").getString("_content"));
+//            int iconServer = Integer.parseInt(persopnInfo.getString("iconserver"));
+//            int iconFarm = Integer.parseInt(persopnInfo.getString("iconfarm"));
+//            String profileImageURL = "http://farm+"+iconFarm+".staticflickr.com/"+ iconServer+"/buddyicons/"+idOfPerson+".jpg";
+//            PhotoData userData =new PhotoData(personUserName,idOfPerson,personRealName,numberOfPhotos,profileImageURL);
+//            mPhotoList.add(userData);
+//
+//        }else if(imageJsonString.equals("PHOTO")) {
+//
+//            mPhotoList = new ArrayList<>();
+//
+//            JSONObject jsonData = new JSONObject(imageJsonString[0]);
+//            JSONArray itemsArray = jsonData.getJSONArray("items");
+//
+//            for (int i = 0; i < itemsArray.length(); i++) {
+//                JSONObject jsonPhoto = itemsArray.getJSONObject(i);
+//                String title = jsonPhoto.getString("title");
+//                String author = jsonPhoto.getString("author");
+//                String authorId = jsonPhoto.getString("author_id");
+//                String tags = jsonPhoto.getString("tags");
+//
+//                JSONObject jsonMedia = jsonPhoto.getJSONObject("media");
+//                String photoUrl = jsonMedia.getString("m");
+//
+//                String link = photoUrl.replaceFirst("_m.", "_b.");
+//                PhotoData photoObject = new PhotoData(title, author, authorId, link, tags, photoUrl);
+//
+//                mPhotoList.add(photoObject);
+//                Log.d(TAG, "onDownloadComplete " + photoObject.toString());
+//
+//
+//            }
+//        }
+//        return mPhotoList;
 //    }
 
     @Override
     protected void onPostExecute(List<PhotoData> photoDataList) {
         super.onPostExecute(photoDataList);
         flickerAdapter.setPhotoData(photoDataList);
+
     }
 }
