@@ -1,5 +1,7 @@
 package com.example.geek.flicker;
 
+import java.util.List;
+
 /**
  * Created by geek on 22.12.2017.
  */
@@ -11,12 +13,13 @@ public class PhotoData {
     private String mAuthorId;
     private String mLink;
     private String mTags;
-    private String mImage;
-    private String mAuthorProfilePictureURL;
-    private String mAuthorRealName;
-    private String mAuthorUserName;
-    private String profileImageURL;
-    private int numberOfPhotosOfTheUser;
+    private String mImageURL;
+    private String mPhotoTakenDate;
+    private String mPhotoDescription;
+    private String mPhotoPublishedDate;
+    private String mPhotoID;
+    public PhotoData() {
+    }
 
     public PhotoData(String title, String author, String authorId, String link, String tags, String image) {
         mTitle = title;
@@ -24,56 +27,73 @@ public class PhotoData {
         mAuthorId = authorId;
         mLink = link;
         mTags = tags;
-        mImage = image;
+        mImageURL = image;
     }
 
+//
+//    public PhotoData(String mAuthorProfilePictureURL, String mAuthorRealName, String mAuthorUserName, int numberOfPhotosOfTheUser,String profileImageURL) {
+//        this.mAuthorProfilePictureURL = mAuthorProfilePictureURL;
+//        this.mAuthorRealName = mAuthorRealName;
+//        this.mAuthorUserName = mAuthorUserName;
+//        this.numberOfPhotosOfTheUser = numberOfPhotosOfTheUser;
+//        this.profileImageURL =profileImageURL;
+//    }
 
-    public PhotoData(String mAuthorProfilePictureURL, String mAuthorRealName, String mAuthorUserName, int numberOfPhotosOfTheUser,String profileImageURL) {
-        this.mAuthorProfilePictureURL = mAuthorProfilePictureURL;
-        this.mAuthorRealName = mAuthorRealName;
-        this.mAuthorUserName = mAuthorUserName;
-        this.numberOfPhotosOfTheUser = numberOfPhotosOfTheUser;
-        this.profileImageURL =profileImageURL;
+
+    public String getmPhotoID() {
+        return mPhotoID;
     }
 
-    public String getProfileImageURL() {
-        return profileImageURL;
+    public void setmPhotoID(String mPhotoID) {
+        this.mPhotoID = mPhotoID;
     }
 
-    public void setProfileImageURL(String profileImageURL) {
-        this.profileImageURL = profileImageURL;
+    public String getmPhotoPublishedDate() {
+        return mPhotoPublishedDate;
     }
 
-    public String getmAuthorProfilePictureURL() {
-        return mAuthorProfilePictureURL;
+    public void setmPhotoPublishedDate(String mPhotoPublishedDate) {
+        this.mPhotoPublishedDate = mPhotoPublishedDate;
     }
 
-    public String getmAuthorRealName() {
-        return mAuthorRealName;
+    public String getmPhotoDescription() {
+        return mPhotoDescription;
     }
 
-    public String getmAuthorUserName() {
-        return mAuthorUserName;
+    public void setmPhotoDescription(String mPhotoDescription) {
+        this.mPhotoDescription = mPhotoDescription;
     }
 
-    public int getNumberOfPhotosOfTheUser() {
-        return numberOfPhotosOfTheUser;
+    public String getmPhotoTakenDate() {
+        return mPhotoTakenDate;
     }
 
-    public void setmAuthorProfilePictureURL(String mAuthorProfilePictureURL) {
-        this.mAuthorProfilePictureURL = mAuthorProfilePictureURL;
+    public void setmPhotoTakenDate(String mPhotoTakenDate) {
+        this.mPhotoTakenDate = mPhotoTakenDate;
     }
 
-    public void setmAuthorRealName(String mAuthorRealName) {
-        this.mAuthorRealName = mAuthorRealName;
+    public void setmTitle(String mTitle) {
+        this.mTitle = mTitle;
     }
 
-    public void setmAuthorUserName(String mAuthorUserName) {
-        this.mAuthorUserName = mAuthorUserName;
+    public void setmAuthor(String mAuthor) {
+        this.mAuthor = mAuthor;
     }
 
-    public void setNumberOfPhotosOfTheUser(int numberOfPhotosOfTheUser) {
-        this.numberOfPhotosOfTheUser = numberOfPhotosOfTheUser;
+    public void setmAuthorId(String mAuthorId) {
+        this.mAuthorId = mAuthorId;
+    }
+
+    public void setmLink(String mLink) {
+        this.mLink = mLink;
+    }
+
+    public void setmTags(String mTags) {
+        this.mTags = mTags;
+    }
+
+    public void setmImageURL(String mImageURL) {
+        this.mImageURL = mImageURL;
     }
 
     String getTitle() {
@@ -96,8 +116,8 @@ public class PhotoData {
         return mTags;
     }
 
-    String getImage() {
-        return mImage;
+    String getImageUrl() {
+        return mImageURL;
     }
 
     @Override
@@ -108,9 +128,11 @@ public class PhotoData {
                 ", mAuthorId='" + mAuthorId + '\'' +
                 ", mLink='" + mLink + '\'' +
                 ", mTags='" + mTags + '\'' +
-                ", mImage='" + mImage + '\'' +
+                ", mImageURL='" + mImageURL + '\'' +
                 '}';
     }
+
+
 
 
 

@@ -1,7 +1,10 @@
 package com.example.geek.flicker;
 
-import android.net.Uri;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
 import android.os.AsyncTask;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -16,6 +19,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.example.geek.flicker.DB.FlickerContract.PhotoEntry;
 
 import static android.content.ContentValues.TAG;
 
@@ -23,17 +30,21 @@ import static android.content.ContentValues.TAG;
  * Created by geek on 22.12.2017.
  */
 
-public class FetchImageJsonData extends AsyncTask<String, Void, List<PhotoData>> {
+public class FetchImageJsonData extends AsyncTask<String, Void, Void> {
 
+
+    ContentResolver contentResolver;
+    Context context;
     FlickerAdapter flickerAdapter;
     private List<PhotoData> mPhotoList = null;
 
-    public FetchImageJsonData(FlickerAdapter flickerAdapter) {
-        this.flickerAdapter = flickerAdapter;
+    public FetchImageJsonData(Context context) {
+        this.context = context;
+        this.contentResolver = context.getContentResolver();
     }
 
     @Override
-    protected List<PhotoData> doInBackground(String... strings) {
+    protected Void doInBackground(String... strings) {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String imageJsonString = null;
@@ -73,9 +84,8 @@ public class FetchImageJsonData extends AsyncTask<String, Void, List<PhotoData>>
             }
         }
 
-
         try {
-            return getDataFromJson(imageJsonString);
+             getDataFromJson(imageJsonString);
         } catch (JSONException e) {
             Log.e("FetchImageTask", e.getMessage(), e);
         }
@@ -85,85 +95,66 @@ public class FetchImageJsonData extends AsyncTask<String, Void, List<PhotoData>>
 
     }
 
-    private List<PhotoData>getDataFromJson(String imageJsonString) throws JSONException{
+    private void getDataFromJson(String imageJsonString) throws JSONException {
         mPhotoList = new ArrayList<>();
 //
-            JSONObject jsonData = new JSONObject(imageJsonString);
-            JSONArray itemsArray = jsonData.getJSONArray("items");
+        JSONObject jsonData = new JSONObject(imageJsonString);
+        JSONArray itemsArray = jsonData.getJSONArray("items");
+        Pattern pattern = Pattern.compile("([^\\/]+$)");
+        Matcher matcher ;
 
-            for (int i = 0; i < itemsArray.length(); i++) {
-                JSONObject jsonPhoto = itemsArray.getJSONObject(i);
-                String title = jsonPhoto.getString("title");
-                String author = jsonPhoto.getString("author");
-                String authorId = jsonPhoto.getString("author_id");
-                String tags = jsonPhoto.getString("tags");
+        for (int i = 0; i < itemsArray.length(); i++) {
+            PhotoData photoData = new PhotoData();
 
-                JSONObject jsonMedia = jsonPhoto.getJSONObject("media");
-                String photoUrl = jsonMedia.getString("m");
+            JSONObject jsonPhoto = itemsArray.getJSONObject(i);
+            JSONObject jsonMedia = jsonPhoto.getJSONObject("media");
+            String photoUrl = jsonMedia.getString("m");
+//
+//          String link = photoUrl.replaceFirst("_m.", "_b.");
+            String photoID="";
+             matcher = pattern.matcher(photoUrl);
+            if (matcher.find())
+              photoID  = matcher.group();
 
-                String link = photoUrl.replaceFirst("_m.", "_b.");
-                PhotoData photoObject = new PhotoData(title, author, authorId, link, tags, photoUrl);
 
-                mPhotoList.add(photoObject);
-                Log.d(TAG, "onDownloadComplete " + photoObject.toString());
+            photoData.setmTitle(jsonPhoto.getString("title"));
+            photoData.setmAuthor(jsonPhoto.getString("author"));
+            photoData.setmAuthorId(jsonPhoto.getString("author_id"));
+            photoData.setmPhotoDescription(jsonPhoto.getString("description"));
+            photoData.setmPhotoTakenDate(jsonPhoto.getString("date_taken"));
+            photoData.setmPhotoID(photoID.split("_m")[0]);
+            photoData.setmPhotoPublishedDate(jsonPhoto.getString("published"));
+            photoData.setmTags(jsonPhoto.getString("tags"));
+            photoData.setmImageURL(photoUrl);
 
-            }
-            return mPhotoList;
+            addPhotoInfo(photoData);
+
+        }
+
     }
 
 
-//    private List<PhotoData> getDataFromJson(String imageJsonStringWithFLAG) throws JSONException {
+    public void addPhotoInfo(PhotoData photoData) {
+        ContentValues photoContentValues = new ContentValues();
+
+        photoContentValues.put(PhotoEntry.COLOUMN_TAG, photoData.getTags());
+        photoContentValues.put(PhotoEntry.COLUMN_IMAGE_URL, photoData.getImageUrl());
+        photoContentValues.put(PhotoEntry.COLUMN_PHOTO_ID,photoData.getmPhotoID());
+        photoContentValues.put(PhotoEntry.COLOUMN_USER_ID,photoData.getAuthorId());
+        photoContentValues.put(PhotoEntry.COLOUMN_PHOTO_TITLE, photoData.getTitle());
+        photoContentValues.put(PhotoEntry.COLOUMN_TAKEN_DATE, photoData.getmPhotoTakenDate());
+        photoContentValues.put(PhotoEntry.COLOUMN_PUBLISH_DATE,photoData.getmPhotoPublishedDate());
+        photoContentValues.put(PhotoEntry.COLUMN_PHOTO_DESCRIPTION,photoData.getmPhotoDescription());
+
+        contentResolver.insert(PhotoEntry.CONTENT_URI,photoContentValues);
+
+    }
+
+
+//    @Override
+//    protected void onPostExecute(List<PhotoData> photoDataList) {
+//        super.onPostExecute(photoDataList);
+//        flickerAdapter.setPhotoData(photoDataList);
 //
-//        String [] imageJsonString=imageJsonStringWithFLAG.split("FLAG");
-//
-//        if(imageJsonString[1].equals("USER")){
-//            mPhotoList =new ArrayList<>();
-//
-//            JSONObject jsonData = new JSONObject(imageJsonString[0]);
-//            JSONObject persopnInfo = jsonData.getJSONObject("person");
-//            String idOfPerson = persopnInfo.getString("id");
-//            String personUserName = persopnInfo.getJSONObject("username").getString("_content");
-//            String personRealName = persopnInfo.getJSONObject("realnmae").getString("_content").toString();
-//            int numberOfPhotos = Integer.parseInt(persopnInfo.getJSONObject("photos").getJSONObject("count").getString("_content"));
-//            int iconServer = Integer.parseInt(persopnInfo.getString("iconserver"));
-//            int iconFarm = Integer.parseInt(persopnInfo.getString("iconfarm"));
-//            String profileImageURL = "http://farm+"+iconFarm+".staticflickr.com/"+ iconServer+"/buddyicons/"+idOfPerson+".jpg";
-//            PhotoData userData =new PhotoData(personUserName,idOfPerson,personRealName,numberOfPhotos,profileImageURL);
-//            mPhotoList.add(userData);
-//
-//        }else if(imageJsonString.equals("PHOTO")) {
-//
-//            mPhotoList = new ArrayList<>();
-//
-//            JSONObject jsonData = new JSONObject(imageJsonString[0]);
-//            JSONArray itemsArray = jsonData.getJSONArray("items");
-//
-//            for (int i = 0; i < itemsArray.length(); i++) {
-//                JSONObject jsonPhoto = itemsArray.getJSONObject(i);
-//                String title = jsonPhoto.getString("title");
-//                String author = jsonPhoto.getString("author");
-//                String authorId = jsonPhoto.getString("author_id");
-//                String tags = jsonPhoto.getString("tags");
-//
-//                JSONObject jsonMedia = jsonPhoto.getJSONObject("media");
-//                String photoUrl = jsonMedia.getString("m");
-//
-//                String link = photoUrl.replaceFirst("_m.", "_b.");
-//                PhotoData photoObject = new PhotoData(title, author, authorId, link, tags, photoUrl);
-//
-//                mPhotoList.add(photoObject);
-//                Log.d(TAG, "onDownloadComplete " + photoObject.toString());
-//
-//
-//            }
-//        }
-//        return mPhotoList;
 //    }
-
-    @Override
-    protected void onPostExecute(List<PhotoData> photoDataList) {
-        super.onPostExecute(photoDataList);
-        flickerAdapter.setPhotoData(photoDataList);
-
-    }
 }

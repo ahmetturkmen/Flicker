@@ -17,6 +17,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -29,7 +30,13 @@
                 android:value="com.example.geek.flicker.MainActivity" />
             >
         </activity>
-        <activity android:name=".UserDetailActivity"></activity>
+        <activity android:name=".UserDetailActivity" />
+
+        <provider
+            android:name=".DB.FlickerContentProvider"
+            android:authorities="com.example.geek.flicker"
+            android:enabled="true"
+            android:exported="true"></provider>
     </application>
 
 </manifest>

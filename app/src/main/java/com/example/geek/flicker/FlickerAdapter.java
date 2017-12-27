@@ -1,7 +1,7 @@
 package com.example.geek.flicker;
 
 import android.content.Context;
-import android.support.v7.view.menu.MenuView;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,10 +24,9 @@ public class FlickerAdapter extends RecyclerView.Adapter<FlickerAdapter.ViewHold
     private Context mContext;
     private String[] mDataset;
     private ListItemOnClickListener mOnClickListener;
+    private Cursor dataCursor;
 
-
-    public FlickerAdapter(Context context,List<PhotoData> photoDataList,ListItemOnClickListener mOnClickListener) {
-        mPhotosList=photoDataList;
+    public FlickerAdapter(Context context,ListItemOnClickListener mOnClickListener) {
         mContext=context;
         this.mOnClickListener=mOnClickListener;
     }
@@ -43,22 +41,25 @@ public class FlickerAdapter extends RecyclerView.Adapter<FlickerAdapter.ViewHold
         return viewHolder;
     }
 
-
     @Override
     public int getItemCount() {
-
-        return ((mPhotosList != null) && (mPhotosList.size() !=0) ? mPhotosList.size() : 0);
+        return (dataCursor == null) ? 0 : dataCursor.getCount();
     }
+
 
     @Override
     public void onBindViewHolder(FlickerAdapter.ViewHolder holder, int position) {
+        dataCursor.moveToPosition(position);
 
-        PhotoData photoItem = mPhotosList.get(position);
+        String imageURL = dataCursor.getString(4);
+
+
+//        PhotoData photoItem = mPhotosList.get(position);
 
         //picasso used to getting and inserting image to thumbnail of a imageview
 
 //        holder.thumbnail.setImageResource(photoItem.getResourceID());
-        Picasso.with(mContext).load(photoItem.getImage())
+        Picasso.with(mContext).load(imageURL)
                 .error(R.drawable.ic_error_black_24dp)
                 .placeholder(R.drawable.place_holder_icon)
                 .into(holder.thumbnail);
@@ -72,10 +73,24 @@ public class FlickerAdapter extends RecyclerView.Adapter<FlickerAdapter.ViewHold
         return ((mPhotosList != null) && (mPhotosList.size() !=0) ? mPhotosList.get(position) : null);
     }
 
-    void setPhotoData(List<PhotoData> newPhotos){
-        mPhotosList=newPhotos;
-        notifyDataSetChanged();
+//    void setPhotoData(List<PhotoData> newPhotos){
+//        mPhotosList=newPhotos;
+//        notifyDataSetChanged();
+//    }
+
+    public Cursor swapCursor(Cursor cursor) {
+        if (dataCursor == cursor) {
+            return null;
+        }
+        Cursor oldCursor = dataCursor;
+        this.dataCursor = cursor;
+        if (cursor != null) {
+            this.notifyDataSetChanged();
+        }
+        return oldCursor;
     }
+
+
 
 
 
