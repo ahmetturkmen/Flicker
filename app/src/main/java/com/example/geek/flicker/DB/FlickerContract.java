@@ -32,6 +32,7 @@ public class FlickerContract {
 
         public static final String TABLE_NAME       = "photos";
         public static final String COLUMN_PHOTO_ID = "photoID";
+        public static final String COLOUMN_PHOTO_AUTHOR="author";
         public static final String COLUMN_IMAGE_URL= "photoURL";
         public static final String COLOUMN_USER_ID = "userID";
         public static final String COLOUMN_TAKEN_DATE= "photoTakenDate";

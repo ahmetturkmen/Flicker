@@ -40,20 +40,21 @@ public class FlickerDbHelper extends SQLiteOpenHelper {
                 FlickerContract.PhotoEntry.COLOUMN_PUBLISH_DATE+ " TEXT,"+
                 FlickerContract.PhotoEntry.COLUMN_IMAGE_URL+ " TEXT,"+
                 FlickerContract.PhotoEntry.COLOUMN_TAG+ " TEXT,"+
+                FlickerContract.PhotoEntry.COLOUMN_PHOTO_AUTHOR+ " TEXT,"+
                 FlickerContract.PhotoEntry.COLUMN_PHOTO_DESCRIPTION+ " TEXT,"+
                 FlickerContract.PhotoEntry.COLOUMN_USER_ID+ " TEXT,"+
                 " FOREIGN KEY ("+FlickerContract.PhotoEntry.COLOUMN_USER_ID+") REFERENCES "+
                 FlickerContract.UserEntry.COLUMN_ID+"("+ FlickerContract.UserEntry.COLUMN_ID+"));";
 
-
-
         Log.v("SQL STATEMENT: ",SQL_CREATE_PHOTOS_TABLE);
-
 
         db.execSQL(SQL_CREATE_PHOTOS_TABLE);
         db.execSQL(SQL_CREATE_USERS_TABLE);
 
     }
+
+
+
 
 
     @Override

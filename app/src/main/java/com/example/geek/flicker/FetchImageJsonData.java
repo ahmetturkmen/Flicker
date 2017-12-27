@@ -3,6 +3,7 @@ package com.example.geek.flicker;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -48,8 +49,25 @@ public class FetchImageJsonData extends AsyncTask<String, Void, Void> {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String imageJsonString = null;
+        Log.v("doInBackground",strings[0]);
+        String format ="json";
+        String noJsonCallBack="nojsoncallback";
+
 
         try {
+            final String FORECAST_BASE_URL = "https://api.flickr.com/services/feeds/photos_public.gne?";
+            final String FORMAT_PARAM      = "format";
+            final String NO_JSON_CALLBACK_PARAM= "nojsoncallback";
+//            final String UNITS_PARAM       = "units";
+//            final String DAYS_PARAM        = "cnt";
+//            final String APPID_PARAM       = "APPID";
+
+            Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                    .appendQueryParameter(FORMAT_PARAM , format)
+                    .appendQueryParameter(NO_JSON_CALLBACK_PARAM , NO_JSON_CALLBACK_PARAM)
+                    .build();
+
+
             URL url = new URL(strings[0]);
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
@@ -98,11 +116,14 @@ public class FetchImageJsonData extends AsyncTask<String, Void, Void> {
     private void getDataFromJson(String imageJsonString) throws JSONException {
         mPhotoList = new ArrayList<>();
 //
+
+        Log.v("getDataFromJson",imageJsonString+" ");
         JSONObject jsonData = new JSONObject(imageJsonString);
         JSONArray itemsArray = jsonData.getJSONArray("items");
         Pattern pattern = Pattern.compile("([^\\/]+$)");
         Matcher matcher ;
 
+        if(imageJsonString!=null){
         for (int i = 0; i < itemsArray.length(); i++) {
             PhotoData photoData = new PhotoData();
 
@@ -131,6 +152,8 @@ public class FetchImageJsonData extends AsyncTask<String, Void, Void> {
 
         }
 
+        }
+
     }
 
 
@@ -141,6 +164,7 @@ public class FetchImageJsonData extends AsyncTask<String, Void, Void> {
         photoContentValues.put(PhotoEntry.COLUMN_IMAGE_URL, photoData.getImageUrl());
         photoContentValues.put(PhotoEntry.COLUMN_PHOTO_ID,photoData.getmPhotoID());
         photoContentValues.put(PhotoEntry.COLOUMN_USER_ID,photoData.getAuthorId());
+        photoContentValues.put(PhotoEntry.COLOUMN_PHOTO_AUTHOR,photoData.getAuthor());
         photoContentValues.put(PhotoEntry.COLOUMN_PHOTO_TITLE, photoData.getTitle());
         photoContentValues.put(PhotoEntry.COLOUMN_TAKEN_DATE, photoData.getmPhotoTakenDate());
         photoContentValues.put(PhotoEntry.COLOUMN_PUBLISH_DATE,photoData.getmPhotoPublishedDate());

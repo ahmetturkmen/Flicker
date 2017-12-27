@@ -23,11 +23,13 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.SearchView;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.example.geek.flicker.DB.FlickerContract;
 import com.example.geek.flicker.DB.FlickerContract.PhotoEntry;
 import com.example.geek.flicker.DB.FlickerContract.UserEntry;
-
+import com.example.geek.flicker.DB.FlickerDbHelper;
 
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener,ListItemOnClickListener,
@@ -40,7 +42,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private FlickerAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private DividerItemDecoration dividerItemDecoration;
-    private List<PhotoData> photoDataList;
+
+    private FlickerDbHelper flickerDbHelper;
+
 
     public static final String [] FLICKER_PROJECTIONS={
 
@@ -50,8 +54,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             PhotoEntry.COLOUMN_PUBLISH_DATE,
             PhotoEntry.COLUMN_IMAGE_URL,
             PhotoEntry.COLOUMN_TAG,
+            PhotoEntry.COLOUMN_PHOTO_AUTHOR,
             PhotoEntry.COLUMN_PHOTO_DESCRIPTION,
-            PhotoEntry.COLOUMN_USER_ID
+            PhotoEntry.COLOUMN_USER_ID,
     };
 
     private int LOADER_ID = 0;
@@ -63,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        flickerDbHelper=new FlickerDbHelper(this);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         getLoaderManager().initLoader(LOADER_ID, null, this);
@@ -185,19 +191,39 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     public void onListItemClick(int clickedItemIndex) {
 
         Intent detailActivity ;
-
         detailActivity = new Intent(MainActivity.this,PhotoDetailActivity.class);
-//        Log.v("photodata content", m.getPhoto(clickedItemIndex).getAuthor()+" ");
-//
-//        detailActivity.putExtra("title",P );
-        detailActivity.putExtra("tags",mAdapter.getPhoto(clickedItemIndex).getTags());
-        detailActivity.putExtra("link",mAdapter.getPhoto(clickedItemIndex).getLink());
-        detailActivity.putExtra("authorID",mAdapter.getPhoto(clickedItemIndex).getAuthorId());
-        detailActivity.putExtra("photoLink",mAdapter.getPhoto(clickedItemIndex).getLink());
+        Cursor photoData =flickerDbHelper.getReadableDatabase().query(PhotoEntry.TABLE_NAME,FLICKER_PROJECTIONS,null,null,null,null,null);
+
+
+        photoData.moveToPosition(clickedItemIndex);
+        String photoID = photoData.getString(0);
+        String photoTitle =photoData.getString(1);
+        String coloumnTakenDate = photoData.getString(2);
+        String publishedDate = photoData.getString(3);
+        String author = photoData.getString(6).split(" ")[1];
+
+
+        // When we launch an image the detailImageActivity should replace small sized picture with bigger sized
+        // it can be obtained by implementing regex to the link.
+        String imageURL = photoData.getString(4).replaceFirst("_m.","_b.");
+        String tags = photoData.getString(5);
+ //        String photoDescription = photoData.getString(7);
+//        String userId = photoData.getString(8);
+
+        detailActivity.putExtra("title",photoTitle);
+        detailActivity.putExtra("tags",tags);
+//        detailActivity.putExtra("authorID",userId);
+        detailActivity.putExtra("author",author);
+        detailActivity.putExtra("photoLink",imageURL);
+        detailActivity.putExtra("publishedDate",publishedDate);
+        detailActivity.putExtra("coloumnTakenDate",coloumnTakenDate);
+
 
         Log.v("onListItemClick","MainActivity Item " +clickedItemIndex+" is clicked");
 
         startActivity(detailActivity);
+
+
     }
 
 }

@@ -34,7 +34,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    tools:text="TextView"/>
+                    android:textAlignment="viewStart"
+                    android:textStyle="bold"
+                    tools:text="TextView" />
+
+                <TextView
+                    android:id="@+id/publishDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    tools:text="TextView" />
 
                 <ImageView
                     android:id="@+id/photo_image"
@@ -51,6 +60,13 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
                     tools:text="TextView"/>
+
+                <TextView
+                    android:id="@+id/photoTakenDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    tools:text="TextView" />
 
                 <TextView
                     android:id="@+id/photo_tags"

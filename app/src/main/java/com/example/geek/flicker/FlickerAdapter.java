@@ -20,9 +20,7 @@ import java.util.List;
 public class FlickerAdapter extends RecyclerView.Adapter<FlickerAdapter.ViewHolder> {
 
 
-    private List<PhotoData> mPhotosList;
     private Context mContext;
-    private String[] mDataset;
     private ListItemOnClickListener mOnClickListener;
     private Cursor dataCursor;
 
@@ -69,14 +67,6 @@ public class FlickerAdapter extends RecyclerView.Adapter<FlickerAdapter.ViewHold
 
     }
 
-    public PhotoData getPhoto(int position) {
-        return ((mPhotosList != null) && (mPhotosList.size() !=0) ? mPhotosList.get(position) : null);
-    }
-
-//    void setPhotoData(List<PhotoData> newPhotos){
-//        mPhotosList=newPhotos;
-//        notifyDataSetChanged();
-//    }
 
     public Cursor swapCursor(Cursor cursor) {
         if (dataCursor == cursor) {
@@ -89,11 +79,6 @@ public class FlickerAdapter extends RecyclerView.Adapter<FlickerAdapter.ViewHold
         }
         return oldCursor;
     }
-
-
-
-
-
 
     class ViewHolder extends  RecyclerView.ViewHolder implements View.OnClickListener{
 
