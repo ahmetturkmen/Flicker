@@ -11,7 +11,6 @@ public class PhotoData {
     private String mTitle;
     private String mAuthor;
     private String mAuthorId;
-    private String mLink;
     private String mTags;
     private String mImageURL;
     private String mPhotoTakenDate;
@@ -20,24 +19,6 @@ public class PhotoData {
     private String mPhotoID;
     public PhotoData() {
     }
-
-    public PhotoData(String title, String author, String authorId, String link, String tags, String image) {
-        mTitle = title;
-        mAuthor = author;
-        mAuthorId = authorId;
-        mLink = link;
-        mTags = tags;
-        mImageURL = image;
-    }
-
-//
-//    public PhotoData(String mAuthorProfilePictureURL, String mAuthorRealName, String mAuthorUserName, int numberOfPhotosOfTheUser,String profileImageURL) {
-//        this.mAuthorProfilePictureURL = mAuthorProfilePictureURL;
-//        this.mAuthorRealName = mAuthorRealName;
-//        this.mAuthorUserName = mAuthorUserName;
-//        this.numberOfPhotosOfTheUser = numberOfPhotosOfTheUser;
-//        this.profileImageURL =profileImageURL;
-//    }
 
 
     public String getmPhotoID() {
@@ -84,10 +65,6 @@ public class PhotoData {
         this.mAuthorId = mAuthorId;
     }
 
-    public void setmLink(String mLink) {
-        this.mLink = mLink;
-    }
-
     public void setmTags(String mTags) {
         this.mTags = mTags;
     }
@@ -108,9 +85,6 @@ public class PhotoData {
         return mAuthorId;
     }
 
-    String getLink() {
-        return mLink;
-    }
 
     String getTags() {
         return mTags;
@@ -126,7 +100,7 @@ public class PhotoData {
                 "mTitle='" + mTitle + '\'' +
                 ", mAuthor='" + mAuthor + '\'' +
                 ", mAuthorId='" + mAuthorId + '\'' +
-                ", mLink='" + mLink + '\'' +
+                ", mImageLink='" + mImageURL + '\'' +
                 ", mTags='" + mTags + '\'' +
                 ", mImageURL='" + mImageURL + '\'' +
                 '}';

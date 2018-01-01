@@ -3,9 +3,9 @@ package com.example.geek.flicker;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.net.Uri;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.example.geek.flicker.DB.FlickerContract;
 import com.example.geek.flicker.DB.FlickerContract.PhotoEntry;
-
-import static android.content.ContentValues.TAG;
+import com.example.geek.flicker.DB.FlickerDbHelper;
 
 /**
  * Created by geek on 22.12.2017.
@@ -36,12 +36,14 @@ public class FetchImageJsonData extends AsyncTask<String, Void, Void> {
 
     ContentResolver contentResolver;
     Context context;
-    FlickerAdapter flickerAdapter;
+    FlickerPhotoAdapter flickerPhotoAdapter;
     private List<PhotoData> mPhotoList = null;
+    FlickerDbHelper flickerDbHelper;
 
     public FetchImageJsonData(Context context) {
         this.context = context;
         this.contentResolver = context.getContentResolver();
+        flickerDbHelper=new FlickerDbHelper(context);
     }
 
     @Override
@@ -49,25 +51,10 @@ public class FetchImageJsonData extends AsyncTask<String, Void, Void> {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String imageJsonString = null;
-        Log.v("doInBackground",strings[0]);
-        String format ="json";
-        String noJsonCallBack="nojsoncallback";
+        Log.v("doInBackground", strings[0]);
 
 
         try {
-            final String FORECAST_BASE_URL = "https://api.flickr.com/services/feeds/photos_public.gne?";
-            final String FORMAT_PARAM      = "format";
-            final String NO_JSON_CALLBACK_PARAM= "nojsoncallback";
-//            final String UNITS_PARAM       = "units";
-//            final String DAYS_PARAM        = "cnt";
-//            final String APPID_PARAM       = "APPID";
-
-            Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                    .appendQueryParameter(FORMAT_PARAM , format)
-                    .appendQueryParameter(NO_JSON_CALLBACK_PARAM , NO_JSON_CALLBACK_PARAM)
-                    .build();
-
-
             URL url = new URL(strings[0]);
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
@@ -103,7 +90,7 @@ public class FetchImageJsonData extends AsyncTask<String, Void, Void> {
         }
 
         try {
-             getDataFromJson(imageJsonString);
+            getDataFromJson(imageJsonString);
         } catch (JSONException e) {
             Log.e("FetchImageTask", e.getMessage(), e);
         }
@@ -114,16 +101,14 @@ public class FetchImageJsonData extends AsyncTask<String, Void, Void> {
     }
 
     private void getDataFromJson(String imageJsonString) throws JSONException {
-        mPhotoList = new ArrayList<>();
 //
 
-        Log.v("getDataFromJson",imageJsonString+" ");
+        Log.v("getDataFromJson", imageJsonString + " ");
         JSONObject jsonData = new JSONObject(imageJsonString);
         JSONArray itemsArray = jsonData.getJSONArray("items");
         Pattern pattern = Pattern.compile("([^\\/]+$)");
-        Matcher matcher ;
+        Matcher matcher;
 
-        if(imageJsonString!=null){
         for (int i = 0; i < itemsArray.length(); i++) {
             PhotoData photoData = new PhotoData();
 
@@ -132,10 +117,10 @@ public class FetchImageJsonData extends AsyncTask<String, Void, Void> {
             String photoUrl = jsonMedia.getString("m");
 //
 //          String link = photoUrl.replaceFirst("_m.", "_b.");
-            String photoID="";
-             matcher = pattern.matcher(photoUrl);
+            String photoID = "";
+            matcher = pattern.matcher(photoUrl);
             if (matcher.find())
-              photoID  = matcher.group();
+                photoID = matcher.group();
 
 
             photoData.setmTitle(jsonPhoto.getString("title"));
@@ -150,7 +135,6 @@ public class FetchImageJsonData extends AsyncTask<String, Void, Void> {
 
             addPhotoInfo(photoData);
 
-        }
 
         }
 
@@ -162,23 +146,32 @@ public class FetchImageJsonData extends AsyncTask<String, Void, Void> {
 
         photoContentValues.put(PhotoEntry.COLOUMN_TAG, photoData.getTags());
         photoContentValues.put(PhotoEntry.COLUMN_IMAGE_URL, photoData.getImageUrl());
-        photoContentValues.put(PhotoEntry.COLUMN_PHOTO_ID,photoData.getmPhotoID());
-        photoContentValues.put(PhotoEntry.COLOUMN_USER_ID,photoData.getAuthorId());
-        photoContentValues.put(PhotoEntry.COLOUMN_PHOTO_AUTHOR,photoData.getAuthor());
+        photoContentValues.put(PhotoEntry.COLUMN_PHOTO_ID, photoData.getmPhotoID());
+        photoContentValues.put(PhotoEntry.COLOUMN_USER_ID, photoData.getAuthorId());
+        photoContentValues.put(PhotoEntry.COLOUMN_PHOTO_AUTHOR, photoData.getAuthor());
         photoContentValues.put(PhotoEntry.COLOUMN_PHOTO_TITLE, photoData.getTitle());
         photoContentValues.put(PhotoEntry.COLOUMN_TAKEN_DATE, photoData.getmPhotoTakenDate());
-        photoContentValues.put(PhotoEntry.COLOUMN_PUBLISH_DATE,photoData.getmPhotoPublishedDate());
-        photoContentValues.put(PhotoEntry.COLUMN_PHOTO_DESCRIPTION,photoData.getmPhotoDescription());
+        photoContentValues.put(PhotoEntry.COLOUMN_PUBLISH_DATE, photoData.getmPhotoPublishedDate());
+        photoContentValues.put(PhotoEntry.COLUMN_PHOTO_DESCRIPTION, photoData.getmPhotoDescription());
 
-        contentResolver.insert(PhotoEntry.CONTENT_URI,photoContentValues);
+        if(!isExist(photoData.getmPhotoID()))
+            contentResolver.insert(PhotoEntry.CONTENT_URI, photoContentValues);
 
     }
 
 
-//    @Override
-//    protected void onPostExecute(List<PhotoData> photoDataList) {
-//        super.onPostExecute(photoDataList);
-//        flickerAdapter.setPhotoData(photoDataList);
-//
-//    }
+
+
+    public boolean isExist(String PHOTOID){
+        SQLiteDatabase db = flickerDbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + FlickerContract.PhotoEntry.TABLE_NAME + " WHERE photoID = '" + PHOTOID + "'", null);
+        boolean exist = (cursor.getCount() > 0);
+        cursor.close();
+
+        // I did not close Database connection intentionally because I want to show table contents in log.
+        // By using getTableAsString method.
+
+        // db.close();
+        return exist;
+    }
 }

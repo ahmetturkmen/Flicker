@@ -7,6 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.geek.flicker.FetchUserJsonData;
+import com.example.geek.flicker.FlickerUserAdapter;
+
 import static android.content.ContentValues.TAG;
 
 /**
@@ -28,9 +31,11 @@ public class FlickerDbHelper extends SQLiteOpenHelper {
 
         final String SQL_CREATE_USERS_TABLE = "CREATE TABLE "+ FlickerContract.UserEntry.TABLE_NAME +" ( "+
                 FlickerContract.UserEntry.COLUMN_ID + " INTEGER PRIMARY KEY,"+
-                FlickerContract.UserEntry.COLUMN_USERNAME + " TEXT NOT NULL," +
-                FlickerContract.UserEntry.COLUMN_REALNAME + " TEXT NOT NULL,"+
-                FlickerContract.UserEntry.COLUMN_NUMBER_OF_PHOTOS + " INTEGER NOT NULL"
+                FlickerContract.UserEntry.COLUMN_USERNAME + " TEXT," +
+                FlickerContract.UserEntry.COLUMN_REALNAME + " TEXT,"+
+                FlickerContract.UserEntry.COLOUMN_LOCATION+ " TEXT,"+
+                FlickerContract.UserEntry.COLUMN_NUMBER_OF_PHOTOS+ " INTEGER,"+
+                FlickerContract.UserEntry.COLOUMN_PROFILE_IMAGE_URL + " TEXT"
                 +" );";
 
         final String SQL_CREATE_PHOTOS_TABLE=" CREATE TABLE "+ FlickerContract.PhotoEntry.TABLE_NAME + " ( "+
@@ -47,14 +52,12 @@ public class FlickerDbHelper extends SQLiteOpenHelper {
                 FlickerContract.UserEntry.COLUMN_ID+"("+ FlickerContract.UserEntry.COLUMN_ID+"));";
 
         Log.v("SQL STATEMENT: ",SQL_CREATE_PHOTOS_TABLE);
+        Log.v("SQL STATEMENT: ",SQL_CREATE_USERS_TABLE);
 
         db.execSQL(SQL_CREATE_PHOTOS_TABLE);
         db.execSQL(SQL_CREATE_USERS_TABLE);
 
     }
-
-
-
 
 
     @Override

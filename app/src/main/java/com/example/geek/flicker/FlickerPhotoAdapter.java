@@ -9,33 +9,33 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.geek.flicker.DB.FlickerDbHelper;
 import com.squareup.picasso.Picasso;
-
-import java.util.List;
 
 /**
  * Created by geek on 12/22/17.
  */
 
-public class FlickerAdapter extends RecyclerView.Adapter<FlickerAdapter.ViewHolder> {
+public class FlickerPhotoAdapter extends RecyclerView.Adapter<FlickerPhotoAdapter.ViewHolder> {
 
 
     private Context mContext;
     private ListItemOnClickListener mOnClickListener;
     private Cursor dataCursor;
 
-    public FlickerAdapter(Context context,ListItemOnClickListener mOnClickListener) {
+    public FlickerPhotoAdapter(Context context, ListItemOnClickListener mOnClickListener) {
         mContext=context;
         this.mOnClickListener=mOnClickListener;
+
     }
 
     // Create new views (invoked by the layout manager)
 
     @Override
-    public FlickerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public FlickerPhotoAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View view = layoutInflater.inflate(R.layout.list_cardview_layout,parent,false);
-        FlickerAdapter.ViewHolder viewHolder = new FlickerAdapter.ViewHolder(view,mOnClickListener);
+        FlickerPhotoAdapter.ViewHolder viewHolder = new FlickerPhotoAdapter.ViewHolder(view,mOnClickListener);
         return viewHolder;
     }
 
@@ -46,7 +46,7 @@ public class FlickerAdapter extends RecyclerView.Adapter<FlickerAdapter.ViewHold
 
 
     @Override
-    public void onBindViewHolder(FlickerAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(FlickerPhotoAdapter.ViewHolder holder, int position) {
         dataCursor.moveToPosition(position);
 
         String imageURL = dataCursor.getString(4);

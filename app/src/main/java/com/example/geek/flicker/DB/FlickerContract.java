@@ -71,6 +71,8 @@ public class FlickerContract {
         public static final String COLUMN_USERNAME      = "username";
         public static final String COLUMN_REALNAME      = "realname";
         public static final String COLUMN_NUMBER_OF_PHOTOS     = "numberOfPhotos";
+        public static final String COLOUMN_LOCATION=    "location";
+        public static final String COLOUMN_PROFILE_IMAGE_URL= "imageURL";
 
 
         public static Uri buildUserUri(long id) {

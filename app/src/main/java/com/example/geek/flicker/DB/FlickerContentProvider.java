@@ -8,6 +8,7 @@ import android.content.UriMatcher;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 /**
  * Created by geek on 12/26/17.
@@ -95,6 +96,7 @@ public class FlickerContentProvider extends ContentProvider {
 
                 if (_id > 0){
                     returnUri = FlickerContract.PhotoEntry.buildPhotoUri(_id);
+                    Log.v("insert statement"," "+returnUri);
                 }
                 else{
                     throw new android.database.SQLException("Failed to insert row into" + uri);
@@ -106,6 +108,8 @@ public class FlickerContentProvider extends ContentProvider {
 
                 if (_id > 0){
                     returnUri = FlickerContract.UserEntry.buildUserUri(_id);
+                    Log.v("insert statement"," "+returnUri);
+
                 }
                 else{
                     throw new android.database.SQLException("Failed to insert row into" + uri);
