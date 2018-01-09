@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "466711630008",
+    "firebase_url": "https://flicker-96b51.firebaseio.com",
+    "project_id": "flicker-96b51",
+    "storage_bucket": "flicker-96b51.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466711630008:android:c8cf15e5f510e4ba",
+        "android_client_info": {
+          "package_name": "com.example.geek.flicker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "466711630008-qvh9b4vopk62tl2f6rn38ledvhmgn8j1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.geek.flicker",
+            "certificate_hash": "67c790825775b5c196f13cc84a3661de72ba8377"
+          }
+        },
+        {
+          "client_id": "466711630008-r0romcnd8qvuihaldsamf3bi86i32ha8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.geek.flicker",
+            "certificate_hash": "a800c0df19622dce764cb5264042e6d8c5ea59e2"
+          }
+        },
+        {
+          "client_id": "466711630008-hvacrran0okvq8d4ktnn8psoup42bs6i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAj7UDN-DQ-sJ3QpGiPtjS4AayVnRv4x3M"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "466711630008-hvacrran0okvq8d4ktnn8psoup42bs6i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
