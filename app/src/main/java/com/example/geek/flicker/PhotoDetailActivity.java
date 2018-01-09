@@ -22,6 +22,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_detail);
+        Intent receievedIntent = getIntent();
 
         photoAuthor=findViewById(R.id.photo_author);
         photoTags=findViewById(R.id.photo_tags);
@@ -30,18 +31,18 @@ public class PhotoDetailActivity extends AppCompatActivity {
         photoPublishedDate=findViewById(R.id.publishDate);
         photoTakenDate=findViewById(R.id.photoTakenDate);
 
+        final String userID = receievedIntent.getStringExtra("authorID");
 
         photoAuthor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-
-
-                startActivity(new Intent(PhotoDetailActivity.this,UserDetailActivity.class));
+                Intent userDetailActivity = new Intent(PhotoDetailActivity.this,UserDetailActivity.class);
+                userDetailActivity.putExtra("user_id",userID);
+                startActivity(userDetailActivity);
             }
         });
 
-        Intent receievedIntent = getIntent();
 
 
 
@@ -64,7 +65,6 @@ public class PhotoDetailActivity extends AppCompatActivity {
             photoPublishedDate.setText("Published Date : "+receievedIntent.getStringExtra("publishedDate"));
         if(receievedIntent.hasExtra("coloumnTakenDate"))
             photoTakenDate.setText("Photo Taken date : "+receievedIntent.getStringExtra("coloumnTakenDate"));
-
 
     }
 }

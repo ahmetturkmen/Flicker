@@ -22,13 +22,8 @@ import android.view.MenuItem;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.SearchView;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import com.example.geek.flicker.DB.FlickerContract;
 import com.example.geek.flicker.DB.FlickerContract.PhotoEntry;
-import com.example.geek.flicker.DB.FlickerContract.UserEntry;
 import com.example.geek.flicker.DB.FlickerDbHelper;
 
 
@@ -39,14 +34,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
 
     private RecyclerView mRecyclerView;
-    private FlickerAdapter mAdapter;
+    private FlickerPhotoAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private DividerItemDecoration dividerItemDecoration;
 
     private FlickerDbHelper flickerDbHelper;
 
 
-    public static final String [] FLICKER_PROJECTIONS={
+    public static final String [] FLICKER_PHOTO_PROJECTIONS={
 
             PhotoEntry.COLUMN_PHOTO_ID,
             PhotoEntry.COLOUMN_PHOTO_TITLE,
@@ -72,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         getLoaderManager().initLoader(LOADER_ID, null, this);
-        fetchDataForFirstTime();
+        fetchData();
 
 
         // use this setting to improve performance if you know that changes
@@ -86,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(staggeredGridLayoutManager);
-        mAdapter = new FlickerAdapter(this,this);
+        mAdapter = new FlickerPhotoAdapter(this,this);
         runLayoutAnimation(mRecyclerView);
         mRecyclerView.setAdapter(mAdapter);
 //
@@ -102,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     }
 
-    public void fetchDataForFirstTime(){
+    public void fetchData(){
         FetchImageJsonData fetchImageJsonData = new FetchImageJsonData(this.getApplicationContext());
 
         fetchImageJsonData.execute("https://api.flickr.com/services/feeds/photos_public.gne?format=json&nojsoncallback=1&tagmode=any");
@@ -117,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         Log.v("LOADER",PhotoEntry.CONTENT_URI+"");
 
 
-        return new CursorLoader(getApplicationContext(), PhotoEntry.CONTENT_URI, FLICKER_PROJECTIONS, null, null, null);
+        return new CursorLoader(getApplicationContext(), PhotoEntry.CONTENT_URI, FLICKER_PHOTO_PROJECTIONS, null, null, null);
 
     }
 
@@ -128,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+
         mAdapter.swapCursor(null);
     }
 
@@ -174,10 +170,18 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         SharedPreferences prefs       = PreferenceManager.getDefaultSharedPreferences(this);
         String searchOption= prefs.getString("searchOption","Photos");
         Log.v("SearchOptions" , "SearchOption is "+searchOption);
+
         if(searchOption.equals("people")){
         fetchImageJsonData.execute("https://api.flickr.com/services/feeds/photos_public.gne?format=json&nojsoncallback=1&id="+""+ query+"");
         mAdapter.notifyDataSetChanged();
         }
+        if(searchOption.equals("groups")){
+            fetchImageJsonData.execute("https://api.flickr.com/services/feeds/forums.gne?format=json&nojsoncallback=1");
+            mAdapter.notifyDataSetChanged();
+        }
+        if(searchOption.equals("photos") || searchOption.equals(""))
+            fetchImageJsonData.execute("https://api.flickr.com/services/feeds/photos_public.gne?format=json&nojsoncallback=1");
+            mAdapter.notifyDataSetChanged();
         return true;
     }
 
@@ -192,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         Intent detailActivity ;
         detailActivity = new Intent(MainActivity.this,PhotoDetailActivity.class);
-        Cursor photoData =flickerDbHelper.getReadableDatabase().query(PhotoEntry.TABLE_NAME,FLICKER_PROJECTIONS,null,null,null,null,null);
+        Cursor photoData =flickerDbHelper.getReadableDatabase().query(PhotoEntry.TABLE_NAME,FLICKER_PHOTO_PROJECTIONS,null,null,null,null,null);
 
 
         photoData.moveToPosition(clickedItemIndex);
@@ -205,14 +209,17 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         // When we launch an image the detailImageActivity should replace small sized picture with bigger sized
         // it can be obtained by implementing regex to the link.
+
         String imageURL = photoData.getString(4).replaceFirst("_m.","_b.");
         String tags = photoData.getString(5);
+
+
  //        String photoDescription = photoData.getString(7);
-//        String userId = photoData.getString(8);
+       String userId = photoData.getString(8);
 
         detailActivity.putExtra("title",photoTitle);
         detailActivity.putExtra("tags",tags);
-//        detailActivity.putExtra("authorID",userId);
+        detailActivity.putExtra("authorID",userId);
         detailActivity.putExtra("author",author);
         detailActivity.putExtra("photoLink",imageURL);
         detailActivity.putExtra("publishedDate",publishedDate);
